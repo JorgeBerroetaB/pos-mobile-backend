@@ -17,6 +17,10 @@ public class Venta {
     private LocalDateTime fecha;
 
     private Double total;
+    // Dentro de la clase Venta.java añade este campo:
+    @ManyToOne
+    @JoinColumn(name = "metodo_pago_id")
+    private MetodoPago metodoPago;
 
     // Relación: Una venta tiene muchos detalles (productos vendidos)
     @OneToMany(cascade = CascadeType.ALL)
