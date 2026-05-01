@@ -9,28 +9,40 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/productos")
-@CrossOrigin(origins = "*") // Para que Flutter no tenga problemas de permisos
+@CrossOrigin(origins = "*")
 public class ProductoController {
 
     @Autowired
     private ProductoRepository productoRepository;
 
-    // 1. Listar todos los productos
     @GetMapping
     public List<Producto> obtenerProductos() {
         return productoRepository.findAll();
     }
 
-    // 2. Buscar producto por código de barras
     @GetMapping("/{codigo}")
-    public Producto obtenerPorCodigo(@PathVariable String codigo) { // <--- Así debe quedar, sin el símbolo raro
-        return productoRepository.findByCodigoBarras(codigo)
-                .orElse(null);
+    public Producto obtenerPorCodigo(@PathVariable String codigo) {
+        return productoRepository.findByCodigoBarras(codigo).orElse(null);
     }
 
-    // 3. Guardar o actualizar producto
     @PostMapping
     public Producto guardarProducto(@RequestBody Producto producto) {
-        return productoRepository.save(producto);
+        return productoRepository.findByCodigoBarras(producto.getCodigoBarras())
+                .map(productoExistente -> {
+                    // Actualizamos con los nombres exactos de tu entidad
+                    productoExistente.setNombre(producto.getNombre());
+
+                    // Aquí usamos precioVenta que es el que tienes en el @Data
+                    productoExistente.setPrecioVenta(producto.getPrecioVenta());
+
+                    // Si quieres que el precio del cel también actualice el costo,
+                    // o puedes dejarlo como estaba. Por ahora pongamos venta:
+                    productoExistente.setStock(producto.getStock());
+
+                    return productoRepository.save(productoExistente);
+                })
+                .orElseGet(() -> {
+                    return productoRepository.save(producto);
+                });
     }
 }

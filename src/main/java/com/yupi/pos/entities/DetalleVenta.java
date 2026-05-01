@@ -12,9 +12,16 @@ public class DetalleVenta {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String codigoBarras;
-    private String nombreProducto;
+    // Esta es la línea que te falta para que getProducto() funcione
+    @ManyToOne
+    @JoinColumn(name = "producto_id")
+    private Producto producto;
+
     private Integer cantidad;
+
     private Double precioUnitario;
-    private Double subtotal;
+
+    public Double getSubtotal() {
+        return cantidad * precioUnitario;
+    }
 }
