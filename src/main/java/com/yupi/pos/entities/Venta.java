@@ -17,6 +17,8 @@ public class Venta {
 
     private LocalDateTime fecha;
 
+
+
     private Double total;
 
     // IMPORTANTE: Ya no es un solo MetodoPago, ahora es una lista de pagos realizados
@@ -32,4 +34,6 @@ public class Venta {
     protected void onCreate() {
         fecha = LocalDateTime.now();
     }
+
+    private boolean cancelada = false; // Por defecto es false
 }
