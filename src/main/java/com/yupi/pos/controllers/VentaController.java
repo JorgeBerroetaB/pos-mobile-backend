@@ -29,20 +29,19 @@ public class VentaController {
     @PostMapping
     @Transactional
     public Venta registrarVenta(@RequestBody Venta venta) {
-        // 1. Vincular detalles y descontar stock
+        // 1. Vincular detalles y actualizar stock (permitiendo negativos)
         venta.getDetalles().forEach(detalle -> {
             Producto p = productoRepository.findByCodigoBarras(detalle.getProducto().getCodigoBarras())
                     .orElseThrow(() -> new RuntimeException("Producto no encontrado: " + detalle.getProducto().getCodigoBarras()));
 
-            if (p.getStock() < detalle.getCantidad()) {
-                throw new RuntimeException("Stock insuficiente para: " + p.getNombre());
-            }
+            // ELIMINAMOS EL IF QUE LANZABA LA EXCEPCIÓN DE STOCK INSUFICIENTE
 
+            // Simplemente restamos la cantidad, sin importar si queda en -1, -5, etc.
             p.setStock(p.getStock() - detalle.getCantidad());
             productoRepository.save(p);
         });
 
-        // 2. BUSCAR Y ASIGNAR METODOS DE PAGO REALES (Esto arregla el error 500)
+        // 2. Procesar pagos
         venta.getPagos().forEach(pago -> {
             MetodoPago mp = metodoPagoRepository.findByNombre(pago.getMetodoPago().getNombre())
                     .orElseThrow(() -> new RuntimeException("Método de pago no válido: " + pago.getMetodoPago().getNombre()));
